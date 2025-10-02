@@ -1,0 +1,19 @@
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY pyproject.toml .python-version ./
+
+RUN uv pip install --system --no-cache -r pyproject.toml
+RUN uv pip install --system --no-cache -e ".[dev]"
+
+EXPOSE 8000
+
+CMD ["uv","run", "manage.py", "runserver", "0.0.0.0:8000"]
